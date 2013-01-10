@@ -11,7 +11,8 @@ import matplotlib.pyplot as plt
 #
 # edit this to put in your file name
 #
-filename='MOD021KM.A2006274.0220.005.2008199163946.hdf'
+
+filename='MOD021KM.A2006275.0440.005.2008107091833.hdf'
 
 sd = pyhdf.SD.SD(filename)
 #read all attributes and datasets
@@ -53,13 +54,19 @@ chan31 = scale31 * (chan31 - offset31)
 print "finished callibration"
 sd.end()
 #histogram the first 5000 values
-thefig1,axis1=plt.subplots(1,1)
+fig1=plt.figure(1)
+fig1.clf()
+axis1=fig1.add_subplot(111)
 axis1.hist(chan31.ravel()[:5000])
 axis1.set_title('channel 31 radiances in W/m^2/micron/sr')
-thefig1.canvas.draw()
-
-thefig2,axis2=plt.subplots(1,1)
-axis2.imshow(chan1)
-axis1.set_title('channel 31 radiances in W/m^2/micron/sr')
-thefig2.canvas.draw()
+fig1.canvas.draw()
+ 
+fig2=plt.figure(2)
+fig2.clf()
+axis2=fig2.add_subplot(111)
+cax=axis2.imshow(chan31)
+axis2.set_title('raw channel 31 radiance, no mapping')
+the_bar=fig2.colorbar(cax)
+the_bar.ax.set_ylabel('radiance $(W/m^{-2} \mu m^{-1} sr^{-1})$',rotation=270)
+fig2.canvas.draw()
 plt.show()
