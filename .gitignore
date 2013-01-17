@@ -1,5 +1,15 @@
 *.py[cod]
 
+#emacs
+\#*#
+*~
+
+#data and images
+*.hdf
+*.png
+*.gz
+
+
 # C extensions
 *.so
 
