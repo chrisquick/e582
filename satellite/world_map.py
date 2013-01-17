@@ -1,6 +1,13 @@
 from mpl_toolkits.basemap import Basemap, shiftgrid
 import numpy as np
 import matplotlib.pyplot as plt
+import site,os
+cwd=os.getcwd()
+site.addsitedir(cwd)
+from plot_rads import make_dir
+
+dirname='plots'
+make_dir(dirname)
 
 #
 # extra feature: print coordinates when you click the mouse on a point
@@ -28,99 +35,51 @@ axis1 = fig1.add_subplot(111)
 cid = fig1.canvas.mpl_connect('button_press_event', onclick)
 
 lon_mid=(lons[0] + lons[-1])/2.
-rob_transform = Basemap(projection='robin',lon_0=lon_mid,ax=axis1)
+vdg_transform = Basemap(projection='vandg',lon_0=lon_mid,ax=axis1)
 
 # make filled contour plot.
 #
 # what is the purpose of this line?
 #
 lon_array,lat_array=np.meshgrid(lons, lats)
-x,y=rob_transform(lon_array,lat_array)
+x,y=vdg_transform(lon_array,lat_array)
 #do a filled contour plot of the topography
 cs = axis1.contourf(x,y,etopo,30,cmap=plt.cm.jet)
+# draw coastlines.
+vdg_transform.drawcoastlines()
+# draw parallels and meridians.
+vdg_transform.drawparallels(np.arange(-60.,90.,30.))
+vdg_transform.drawmeridians(np.arange(0.,360.,60.),fontsize=12)
+cb=vdg_transform.colorbar(cs,location='bottom',pad='10%',fig=fig1)
+cb.set_ticks([-9000,0,6000], update_ticks=True)
+cb.set_label('height (m)')
+axis1.set_title('topo, van der Grinten projection')
+fig1.canvas.draw()
+#make a png file for handin
+plotfile='{0:s}/vdg.png'.format((dirname))
+fig1.savefig(plotfile)
+
+fig2=plt.figure(2,figsize=(7,7),dpi=150)
+fig2.clf()
+axis2 = fig2.add_subplot(111)
+rob_transform = Basemap(projection='robin',lon_0=lon_mid,ax=axis2)
+x,y=rob_transform(lon_array,lat_array)
+#do a filled contour plot of the topography
+cs = axis2.contourf(x,y,etopo,30,cmap=plt.cm.jet)
 # draw coastlines.
 rob_transform.drawcoastlines()
 # draw parallels and meridians.
 rob_transform.drawparallels(np.arange(-60.,90.,30.),labels=[1,0,0,0])
 rob_transform.drawmeridians(np.arange(0.,360.,60.),labels=[0,0,0,1],fontsize=12)
-cb=rob_transform.colorbar(cs,location='bottom',pad='10%',fig=fig1)
-cb.set_ticks([-9000,0,6000], update_ticks=True)
-cb.set_label('height (m)')
-
-# add a title.
-axis1.set_title('Robinson Projection, Edmonds, WA')
-#
-# google lat and lon for edmonds, convert from degrees west longitude
-# to degrees east longitude
-#
-my_lat=47.8108
-my_lon=360. - 122.3761
-#convert to plotting coordinates
-xpoint,ypoint=rob_transform(my_lon,my_lat)
-axis1.plot(xpoint,ypoint,'b.',markersize=15)
-view_width=15
-#
-# set the axis limits to show only a box of width view_width
-#
-axis1_xlim,axis1_ylim=rob_transform([my_lon - view_width, my_lon + view_width],\
-                                  [my_lat - view_width, my_lat + view_width])
-box_width=5  #my box is 10 degrees wide
-#                   ll              ul               ur                 lr              ll
-corner_lats=[my_lat-box_width,my_lat+box_width,my_lat+box_width,my_lat-box_width,my_lat-box_width]
-corner_lons=[my_lon-box_width,my_lon-box_width,my_lon+box_width,my_lon+box_width,my_lon-box_width]
-#convert to plotting cooridinates
-x_coord,y_coord=rob_transform(corner_lons,corner_lats)
-axis1.plot(x_coord,y_coord,'b-',linewidth=5)
-axis1.set_xlim(axis1_xlim)
-axis1.set_ylim(axis1_ylim)
-fig1.subplots_adjust(left=0.0,right=1.0)
-fig1.canvas.draw()
-#make a png file for handin
-fig1.savefig('robinson.png')
-
-
-fig2=plt.figure(2,figsize=(4,5),dpi=150)
-fig2.clf()
-axis2 = fig2.add_subplot(111)
-
-#cid = fig1.canvas.mpl_connect('button_press_event', onclick)
-
-
-lcc_transform = Basemap(width=3000000,height=2400000,
-            rsphere=(6378137.00,6356752.3142),\
-            resolution='l',area_thresh=1000.,projection='lcc',\
-            lat_1=45,lat_2=55,lat_0=47.8,lon_0=-122.)
-
-# make filled contour plot.
-#
-# what is the purpose of this line?
-#
-lon_array,lat_array=np.meshgrid(lons, lats)
-x,y=lcc_transform(lon_array,lat_array)
-#do a filled contour plot of the topography
-cs = axis2.contourf(x,y,etopo,30,cmap=plt.cm.jet)
-# draw coastlines.
-lcc_transform.drawcoastlines()
-# draw parallels and meridians.
-lcc_transform.drawparallels(np.arange(-60.,90.,30.),labels=[1,0,0,0])
-lcc_transform.drawmeridians(np.arange(0.,360.,60.),labels=[0,0,0,1],fontsize=12)
-cb=lcc_transform.colorbar(cs,location='bottom',pad='10%',fig=fig2)
-cb.set_ticks([-9000,0,6000], update_ticks=True)
-cb.set_label('height (m)')
-# add a title.
-axis2.set_title('LCC Projection, Edmonds, WA')
-xpoint,ypoint=lcc_transform(my_lon,my_lat)
-axis2.plot(xpoint,ypoint,'b.',markersize=15)
-view_width=15
-axis2_xlim,axis2_ylim=lcc_transform([my_lon - view_width, my_lon + view_width],\
-                                  [my_lat - view_width, my_lat + view_width])
-x_coord,y_coord=lcc_transform(corner_lons,corner_lats)
-axis2.plot(x_coord,y_coord,'b-',linewidth=5)
-axis2.set_xlim(axis2_xlim)
-axis2.set_ylim(axis2_ylim)
-fig2.subplots_adjust(left=0.,right=1.0)
+cb=rob_transform.colorbar(cs,location='right',pad='10%',fig=fig2)
+#cb.set_ticks([-9000,0,6000], update_ticks=True)
+#cb.set_label('height (m)')
+axis2.set_title('topo B, robinson projection')
 fig2.canvas.draw()
 #make a png file for handin
-fig2.savefig('lcc.png')
+plotfile='{0:s}/rob.png'.format((dirname))
+fig2.savefig(plotfile)
+
+
 
 plt.show()

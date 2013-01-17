@@ -6,6 +6,9 @@ import pyhdf.SD
 import numpy as np
 from mpl_toolkits.basemap import Basemap
 import matplotlib.pyplot as plt
+#
+# turn off plotting windows and make pngs instead
+#
 plt.switch_backend('Agg')
 import glob, sys, os
 import site
@@ -15,25 +18,29 @@ import site
 #
 cwd=os.getcwd()
 site.addsitedir(cwd)
+import os
 from modismeta import parseMeta
 from orient import orient
 
 
 from binit import binit
 
-if __name__=="__main__":
-
+def make_dir(dirname='plots'):
     #
-    # new -- make a folder to hold plots, if one
+    # make a folder to hold plots in the current directory, if one
     # doesn't already exist
     #
-    if not os.path.isdir('plots'):
+    if not os.path.isdir(dirname):
         try:
-            os.mkdir('plots')
+            os.mkdir(dirname)
         except:
-            print 'tried and filed to create "plots" directory'
+            print 'tried and filed to create {0:s} directory'.format((dirname))
             sys.exit(1)
 
+
+if __name__=="__main__":
+
+    make_dir()
     max_rows=300
     max_cols=200
     #get the name of files ending in hdf
