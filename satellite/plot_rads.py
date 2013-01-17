@@ -105,14 +105,18 @@ if __name__=="__main__":
 
 
     
-    fig0a,axis0a=plt.subplots(1,1)
+    fig0a=plt.figure(1)
+    fig0a.clf()
+    axis0a=fig0a.add_subplot(111)
     im=axis0a.contourf(partLats)
     cb=plt.colorbar(im)
     the_label=cb.ax.set_ylabel('latitude (deg)',rotation=270)
     axis0a.set_title('partial scene latitude')
     fig0a.savefig('plots/partial_lat.png')
     
-    fig0b,axis0b=plt.subplots(1,1)
+    fig0b=plt.figure(2)
+    fig0b.clf()
+    axis0b=fig0b.add_subplot(111)
     im=axis0b.contourf(partLons)
     cb=plt.colorbar(im)
     the_label=cb.ax.set_ylabel('longitude (deg)',rotation=270)
@@ -132,19 +136,28 @@ if __name__=="__main__":
     #
     # check to make sure that the binit histogram agrees with matplotlib hist
     #
-    fig1,axes=plt.subplots(2,1)
+    fig1=plt.figure(3)
+    fig1.clf()
+    fig1.subplots_adjust(hspace=0.3)
+    axis1=fig1.add_subplot(211)
+    axis2=fig1.add_subplot(212)
+    
     lat_centers=bin_lats.get_centers()
     my_edges=bin_lats.get_edges()
-    axes[0].hist(partLats.ravel(),bins=my_edges)
-    axes[0].plot(lat_centers,lat_count,'r.',markersize=10)
-    axes[0].set_title('latitudes from binit (red) and hist (blue)')
+    axis1.hist(partLats.ravel(),bins=my_edges)
+    axis1.plot(lat_centers,lat_count,'r.',markersize=10)
+    axis1.set_title('latitudes from binit (red) and hist (blue)')
     lon_centers=bin_lons.get_centers()
     my_edges=bin_lons.get_edges()
-    axes[1].hist(partLons.ravel(),bins=my_edges)
-    axes[1].plot(lon_centers,lon_count,'r.',markersize=10)
-    axes[1].set_title('longitudes from binit (red) and hist (blue)')
+    axis2.hist(partLons.ravel(),bins=my_edges)
+    axis2.plot(lon_centers,lon_count,'r.',markersize=10)
+    axis2.set_title('longitudes from binit (red) and hist (blue)')
+    fig1.canvas.draw()
     fig1.savefig('plots/hist.png')
-    
+
+    #
+    # count the pixels in each bin
+    #
     out_grid=np.zeros([bin_lats.numbins,bin_lons.numbins])
     for index in range(lat_index.size):
         lat_bin=lat_index[index]
@@ -153,7 +166,10 @@ if __name__=="__main__":
             continue
         out_grid[lat_bin,lon_bin]+=1
   
-    fig2,axis2=plt.subplots(1,1)
+    fig2=plt.figure(4)
+    fig2.clf()
+    axis2=fig2.add_subplot(111)
+
     im=axis2.contourf(lon_centers,lat_centers,out_grid,levels=[0,1,2,3,4,5],extend='max')
     cb=plt.colorbar(im)
     the_label=cb.ax.set_ylabel('number of pixels in grid cell',rotation=270)
@@ -162,15 +178,21 @@ if __name__=="__main__":
     axis2.set_title('coverage map')
     fig2.savefig('plots/coverage.png')
     
+    fig0=plt.figure(5)
+    fig0.clf()
+    axis0=fig0.add_subplot(111)
 
-    fig0,axis0=plt.subplots(1,1)
     im=axis0.contourf(chan31)
     cb=plt.colorbar(im)
     the_label=cb.ax.set_ylabel('radiance ($W\,m^{-2}\,{\mu m}^{-1}\,sr^{-1}$)',rotation=270)
     axis0.set_title('channel 31 full scene')
     fig0.savefig('plots/channel31_full.png')
     
-    fig3,axis3=plt.subplots(1,1)
+    fig3=plt.figure(6)
+    fig3.clf()
+    axis3=fig3.add_subplot(111)
+
+    
     im=axis3.contourf(partChan31,extend='both')
     cb=plt.colorbar(im)
     the_label=cb.ax.set_ylabel('radiance ($W\,m^{-2}\,{\mu m}^{-1}\,sr^{-1}$)',rotation=270)
@@ -214,21 +236,29 @@ if __name__=="__main__":
                 except IndexError:
                     print "oops: ",rad_list
 
-    fig4,axis4=plt.subplots(1,1)
+    fig4=plt.figure(7)
+    fig4.clf()
+    axis4=fig4.add_subplot(111)
+
     im=axis4.contourf(lon_centers,lat_centers,rad_grid,extend='both')
     cb=plt.colorbar(im)
     the_label=cb.ax.set_ylabel('radiances ($W\,m^{-2}\,{\mu m}^{-1}\,sr^{-1}$)',rotation=270)
     axis4.set_title('MODIS channel 31 radiances (lat/lon binned')
     fig4.savefig('plots/chan31_binned.png')
 
-    fig5,axis5=plt.subplots(1,1)
+    fig5=plt.figure(8)
+    fig5.clf()
+    axis5=fig5.add_subplot(111)
+    
     im=axis5.contourf(lon_centers,lat_centers,lat_grid,extend='both')
     cb=plt.colorbar(im)
     the_label=cb.ax.set_ylabel('latitude (degrees)',rotation=270)
     axis5.set_title('binned latitude')
     fig5.savefig('plots/lat_binned.png')
 
-    fig6,axis6=plt.subplots(1,1)
+    fig6=plt.figure(9)
+    fig6.clf()
+    axis6=fig6.add_subplot(111)
     im=axis6.contourf(lon_centers,lat_centers,lon_grid,extend='both')
     cb=plt.colorbar(im)
     the_label=cb.ax.set_ylabel('latitude (degrees)',rotation=270)
