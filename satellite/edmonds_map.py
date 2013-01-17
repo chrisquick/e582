@@ -1,6 +1,18 @@
+"""
+  zoom the top map to the area around edmonds, wa
+"""
+
 from mpl_toolkits.basemap import Basemap, shiftgrid
 import numpy as np
 import matplotlib.pyplot as plt
+
+from plot_rads import make_dir
+
+#
+# write the png files to the plots directory
+#
+dirname='plots'
+make_dir(dirname)
 
 #
 # extra feature: print coordinates when you click the mouse on a point
@@ -76,8 +88,12 @@ axis1.set_ylim(axis1_ylim)
 fig1.subplots_adjust(left=0.0,right=1.0)
 fig1.canvas.draw()
 #make a png file for handin
-fig1.savefig('robinson.png')
+plotfile='{0:s}/robinson.png'.format((dirname))
+fig1.savefig(plotfile)
 
+#
+# now do lambert conformal conic
+#
 
 fig2=plt.figure(2,figsize=(4,5),dpi=150)
 fig2.clf()
@@ -121,6 +137,8 @@ axis2.set_ylim(axis2_ylim)
 fig2.subplots_adjust(left=0.,right=1.0)
 fig2.canvas.draw()
 #make a png file for handin
-fig2.savefig('lcc.png')
+plotfile='{0:s}/lcc.png'.format((dirname))
+fig2.savefig(plotfile)
+
 
 plt.show()
