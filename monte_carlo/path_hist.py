@@ -1,3 +1,7 @@
+"""
+   Demonstrate a random number generator using the Day 4
+   beta example
+"""
 import matplotlib.pyplot as plt
 from numpy.random.mtrand import RandomState as randomstate
 import numpy as np
