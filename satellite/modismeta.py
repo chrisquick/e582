@@ -114,6 +114,10 @@ def parseMeta(filename):
     outDict['equatortime']=parseIt('EQUATORCROSSINGTIME')
     outDict['equatordate']=parseIt('EQUATORCROSSINGDATE')
     outDict['nasaProductionDate']=parseIt('PRODUCTIONDATETIME')
+    outDict['northlimit']=parseIt('NORTHBOUNDINGCOORDINATE')
+    outDict['southlimit']=parseIt('NORTHBOUNDINGCOORDINATE')
+    outDict['eastlimit']=parseIt('EASTBOUNDINGCOORDINATE')
+    outDict['westlimit']=parseIt('WESTBOUNDINGCOORDINATE')
     outDict['daynight']=parseIt('DAYNIGHTFLAG')
     corners=parseIt('CORNERS')
     cornerlats=[]

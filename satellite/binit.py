@@ -158,6 +158,7 @@ if __name__=="__main__":
     #
     # put on a grid
     #
+    leftLon= -82.
     regLons=np.arange(-82,-81,0.05)
     regLats=np.arange(-28,-27,0.05)
     lonMat,latMat=np.meshgrid(regLons,regLats)
