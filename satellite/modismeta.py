@@ -5,15 +5,21 @@
 """
 
 import types
-import numpy as N
+import numpy as np
 import pyhdf.SD
 
 
 class metaParse:
-    def __init__(self,metaDat,altrDat):
+    def __init__(self,metaDat=None,altrDat=None,filename=None):
         import re
-        self.metaDat=metaDat
-        self.altrDat=altrDat
+        if (metaDat is not None) and (altrDat is not None):
+            self.metaDat=metaDat
+            self.altrDat=altrDat
+        else:
+            infile = pyhdf.SD.SD(filename)
+            self.metaDat=infile.__getattr__('CoreMetadata.0')
+            self.altrDat=infile.__getattr__('ArchiveMetadata.0')
+            
         #search for the string following the words "VALUE= "
         self.stringObject=\
              re.compile('.*VALUE\s+=\s"(?P<value>.*)"',re.DOTALL)
@@ -29,6 +35,8 @@ class metaParse:
         #search for a string that looks like "1234"
         self.orbitObject=\
              re.compile('.*VALUE\s+=\s(?P<orbit>\d+)\n',re.DOTALL)
+        #search for a string that looks like = -9.33512459024296
+        self.boxObject=re.compile('.*?=\s+([-]*\d*\.\d+).*',re.DOTALL)
 
     def getstring(self,theName):
         theString=self.metaDat.split(theName)
@@ -41,10 +49,25 @@ class metaParse:
             if len(altString) == 3:
                 theString=altString[1]
             else:
-                raise "couldn't parse %s" % (theName,)
+                raise Exception("couldn't parse %s" % (theName,))
         return theString
         
-
+    def getbox(self):
+        out=self.altrDat.split('NORTHBOUNDINGCOORDINATE')
+        north=self.boxObject.match(out[1]).group(1)
+        NSEW=[north]
+        out=self.altrDat.split('SOUTHBOUNDINGCOORDINATE')
+        south=self.boxObject.match(out[1]).group(1)
+        NSEW.append(south)
+        out=self.altrDat.split('EASTBOUNDINGCOORDINATE')
+        east=self.boxObject.match(out[1]).group(1)
+        NSEW.append(east)
+        out=self.altrDat.split('WESTBOUNDINGCOORDINATE')
+        west=self.boxObject.match(out[1]).group(1)
+        NSEW.append(west)
+        NSEW=[float(item) for item in NSEW]
+        return NSEW
+    
     def __call__(self,theName):
         if theName=='CORNERS':
             import string
@@ -73,7 +96,7 @@ class metaParse:
                 if theMatch:
                     value=theMatch.group('orbit')
                 else:
-                    raise "couldn't fine ORBITNUMBER"
+                    raise Exception("couldn't fine ORBITNUMBER")
             #expect quotes around anything else:
             else:
                 theMatch=self.stringObject.match(theString)
@@ -87,55 +110,36 @@ class metaParse:
                         if theTime:
                             value=theTime.group('time') + " UCT"
                 else:
-                    raise "couldn't parse %s" % (theName,)
+                    raise Exception("couldn't parse %s" % (theName,))
         return value
 
-def parseMeta(filename):
-    if type(filename) == types.StringType:
-        infile = pyhdf.SD.SD(filename)
-    elif isinstance(filename,pyhdf.SD.SD):
-        infile=filename
-    else:
-        raise IOError, "need an hdf file or HDFFile instance"
-    metaDat=infile.__getattr__('CoreMetadata.0')
-    altrDat=infile.__getattr__('ArchiveMetadata.0')
-    # level-2 files stores GRING data in here
+    def get_info(self):
+        outDict={}
+        outDict['nsew']=self.getbox()
+        outDict['orbit']=self('ORBITNUMBER')
+        outDict['filename']=self('LOCALGRANULEID')
+        outDict['stopdate']=self('RANGEENDINGDATE')
+        outDict['startdate']=self('RANGEBEGINNINGDATE')
+        outDict['starttime']=self('RANGEBEGINNINGTIME')
+        outDict['stoptime']=self('RANGEENDINGTIME')
+        outDict['equatortime']=self('EQUATORCROSSINGTIME')
+        outDict['equatordate']=self('EQUATORCROSSINGDATE')
+        outDict['nasaProductionDate']=self('PRODUCTIONDATETIME')
+        outDict['daynight']=self('DAYNIGHTFLAG')
+        corners=self('CORNERS')
+        cornerlats=[]
+        cornerlons=[]
+        for (lon,lat) in corners:
+            cornerlats.append(lat)
+            cornerlons.append(lon)
+        outDict['cornerlats']=np.array(cornerlats)
+        outDict['cornerlons']=np.array(cornerlons)
+        return outDict
 
-    infile.end()
-
-    parseIt=metaParse(metaDat,altrDat)
-    outDict={}
-    outDict['orbit']=parseIt('ORBITNUMBER')
-    outDict['filename']=parseIt('LOCALGRANULEID')
-    outDict['stopdate']=parseIt('RANGEENDINGDATE')
-    outDict['startdate']=parseIt('RANGEBEGINNINGDATE')
-    outDict['starttime']=parseIt('RANGEBEGINNINGTIME')
-    outDict['stoptime']=parseIt('RANGEENDINGTIME')
-    outDict['equatortime']=parseIt('EQUATORCROSSINGTIME')
-    outDict['equatordate']=parseIt('EQUATORCROSSINGDATE')
-    outDict['nasaProductionDate']=parseIt('PRODUCTIONDATETIME')
-    outDict['northlimit']=parseIt('NORTHBOUNDINGCOORDINATE')
-    outDict['southlimit']=parseIt('NORTHBOUNDINGCOORDINATE')
-    outDict['eastlimit']=parseIt('EASTBOUNDINGCOORDINATE')
-    outDict['westlimit']=parseIt('WESTBOUNDINGCOORDINATE')
-    outDict['daynight']=parseIt('DAYNIGHTFLAG')
-    corners=parseIt('CORNERS')
-    cornerlats=[]
-    cornerlons=[]
-    for (lon,lat) in corners:
-        cornerlats.append(lat)
-        cornerlons.append(lon)
-    outDict['cornerlats']=N.array(cornerlats)
-    outDict['cornerlons']=N.array(cornerlons)
-    return outDict
-
-def dorun(filename=None):
-    import sys
-    if not filename:
-        filename=\
-         'MOD021KM.A2006275.0440.005.2008107091833.hdf'
-    print parseMeta(filename)
 
 if __name__=='__main__':
-    dorun()
-    
+    import sys
+    filename=\
+         'MOD021KM.A2006275.0440.005.2008107091833.hdf'
+    my_parser=metaParse(filename=filename)
+    print my_parser.get_info()
