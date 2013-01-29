@@ -1,4 +1,3 @@
-//#include <tr1/memory>
 #include <bitset>
 #include <iostream>
 
@@ -85,7 +84,11 @@ byte 3
 extern "C" {
   void readcloud_cpp(char* byteone,char* maskout,int nvals){
     //byte 0, bits 1-2
+    std::cout << "bitmask pixel dump:" << "-- number of bytes: " << nvals 
+	      << "-- first byte: " <<  std::bitset<8>(byteone[0]) 
+              << "-- byte 20000: " << std::bitset<8>(byteone[20000]) << std::endl;
     for(int i=0; i < nvals; ++i){
+      //cloud flag is either 0, 1, 2 or 3
       std::bitset<8> myseq(byteone[i]);
       maskout[i] = myseq[1] +(myseq[2]*2);
     }

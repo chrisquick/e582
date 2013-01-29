@@ -13,7 +13,7 @@ cdef extern  void readthin_cirrus_cpp(int8_t* byteone,int8_t* highout,int nvals)
 
 cdef extern  void readhigh_cloud_cpp(int8_t* byteone,int8_t* thinout,int nvals)
 
-def getmask_zero(object byteone):
+def getmask_zero(object bytezero):
     """
        http://modis-atmos.gsfc.nasa.gov/MOD35_L2/format.html
        http://modis-atmos.gsfc.nasa.gov/MOD35_L2/index.html
@@ -38,19 +38,30 @@ def getmask_zero(object byteone):
        3=Land    
 
     """
-    byteone=np.ascontiguousarray(byteone)
-    cdef int nvals= byteone.size
-    saveShape=byteone.shape
-    cdef np.ndarray[np.int8_t,ndim=2] c_byte=byteone
-    cdef int8_t* dataPtr=<int8_t*> c_byte.data
-    cdef np.ndarray[np.int8_t,ndim=2] maskout
-    maskout=np.empty(saveShape,dtype=np.int8)
-    cdef int8_t* maskPtr=<int8_t*> maskout.data
-    cdef np.ndarray[np.int8_t,ndim=2] landout=np.empty(saveShape,dtype=np.int8)
-    cdef int8_t* landPtr=<int8_t*> landout.data
+    byezero=np.ascontiguousarray(bytezero)
+    cdef int nvals= byezero.size
+    #
+    # create memoryview wrappers arround the input and output
+    # numpy arrays and get c pointers to the start of the data
+    # to pass to the c++ functions
+    #
+    cdef np.int8_t[:,::1] c_byte=byezero
+    cdef int8_t* dataPtr=<int8_t*> &c_byte[0,0]
+    cdef np.int8_t[:,::1] maskout=np.empty_like(byezero)
+    cdef int8_t* maskPtr=<int8_t*> &maskout[0,0]
+    cdef np.int8_t[:,::1] landout=np.empty_like(byezero)
+    cdef int8_t* landPtr=<int8_t*> &landout[0,0]
+    #
+    # call the c++ functions to read the cloud and 
+    # land masks
+    #
     readcloud_cpp(dataPtr, maskPtr,nvals)
     readland_cpp(dataPtr, landPtr,nvals)
-    out=(maskout,landout)
+    #
+    # cast the memoryview objects back to numpy arrays
+    # to return to python
+    #
+    out=(np.asarray(maskout),np.asarray(landout))
     return out
 
 
@@ -70,16 +81,15 @@ def getmask_one(object byteone):
     byteone=np.ascontiguousarray(byteone)
     cdef int nvals= byteone.size
     saveShape=byteone.shape
-    cdef np.ndarray[np.int8_t,ndim=2] c_byte=byteone
-    cdef np.int8_t* dataPtr=<np.int8_t*> c_byte.data
-    cdef np.ndarray[np.int8_t,ndim=2] thinout
-    thinout=np.empty(saveShape,dtype=np.int8)
-    cdef np.int8_t* thinPtr=<np.int8_t*> thinout.data
-    cdef np.ndarray[np.int8_t,ndim=2] highout=np.empty(saveShape,dtype=np.int8)
-    cdef np.int8_t* highPtr=<np.int8_t*> highout.data
+    cdef np.int8_t[:,::1] c_byte=byteone
+    cdef int8_t* dataPtr=<int8_t*> &c_byte[0,0]
+    cdef np.int8_t[:,::1] thinout=np.empty_like(byteone)
+    cdef np.int8_t* thinPtr= &thinout[0,0]
+    cdef np.int8_t[:,::1] highout=np.empty_like(byteone)
+    cdef np.int8_t* highPtr= &highout[0,0]
     readthin_cirrus_cpp(dataPtr, thinPtr,nvals)
     readhigh_cloud_cpp(dataPtr, highPtr,nvals)
-    out=(thinout,highout)
+    out=(np.asarray(thinout),np.asarray(highout))
     return out
 
 

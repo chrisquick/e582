@@ -40,6 +40,11 @@ cloudvals=np.logical_and(maskout==0,oceanvals)
 cloudfrac=np.sum(cloudvals)/oceanvals.size
 oceanfrac=np.sum(oceanvals)/landout.size
 
+thinout,highout=bitmap.getmask_zero(maskVals)
+clear_thin_frac=np.sum(thinout.flat)/thinout.size
+clear_high_frac=np.sum(highout.flat)/highout.size
+
+
 ## fig=plt.figure(1)
 ## fig.clf()
 ## ax1=fig.add_subplot(111)
