@@ -17,9 +17,11 @@ class metaParse:
             self.altrDat=altrDat
         else:
             infile = pyhdf.SD.SD(filename)
+            test=infile.attributes().keys()
             self.metaDat=infile.__getattr__('CoreMetadata.0')
             self.altrDat=infile.__getattr__('ArchiveMetadata.0')
-            
+            #infile.end()
+                        
         #search for the string following the words "VALUE= "
         self.stringObject=\
              re.compile('.*VALUE\s+=\s"(?P<value>.*)"',re.DOTALL)
@@ -53,19 +55,25 @@ class metaParse:
         return theString
         
     def getbox(self):
-        out=self.altrDat.split('NORTHBOUNDINGCOORDINATE')
+        if self.altrDat.find('NORTHBOUNDINGCOORDINATE') > 0:
+            coord_string=self.altrDat
+        elif self.metaDat.find('NORTHBOUNDINGCOORDINATE') > 0:
+            coord_string=self.metaDat
+        else:
+            raise Exception("couldn't find NORTHBOUNDINGCOORDINATE")
+        out=coord_string.split('NORTHBOUNDINGCOORDINATE')
         north=self.boxObject.match(out[1]).group(1)
         NSEW=[north]
-        out=self.altrDat.split('SOUTHBOUNDINGCOORDINATE')
+        out=coord_string.split('SOUTHBOUNDINGCOORDINATE')
         south=self.boxObject.match(out[1]).group(1)
         NSEW.append(south)
-        out=self.altrDat.split('EASTBOUNDINGCOORDINATE')
+        out=coord_string.split('EASTBOUNDINGCOORDINATE')
         east=self.boxObject.match(out[1]).group(1)
         NSEW.append(east)
-        out=self.altrDat.split('WESTBOUNDINGCOORDINATE')
+        out=coord_string.split('WESTBOUNDINGCOORDINATE')
         west=self.boxObject.match(out[1]).group(1)
         NSEW.append(west)
-        NSEW=[float(item) for item in NSEW]
+        NSEW=tuple([float(item) for item in NSEW])
         return NSEW
     
     def __call__(self,theName):
@@ -140,6 +148,8 @@ class metaParse:
 if __name__=='__main__':
     import sys
     filename=\
-         'MOD021KM.A2006275.0440.005.2008107091833.hdf'
+         'MYD021KM.A2010215.2145.005.2010216173817.hdf'
+         #'MYD35_L2.A2010215.2145.005.2010216174714.hdf'
+         #'MOD021KM.A2006275.0440.005.2008107091833.hdf'
     my_parser=metaParse(filename=filename)
     print my_parser.get_info()

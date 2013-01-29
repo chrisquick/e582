@@ -6,6 +6,9 @@ import pyhdf.SD
 import numpy as np
 from mpl_toolkits.basemap import Basemap
 import matplotlib.pyplot as plt
+import os
+from modismeta import metaParse
+from orient import orient
 #
 # turn off plotting windows and make pngs instead
 #
@@ -18,9 +21,6 @@ import site
 #
 cwd=os.getcwd()
 site.addsitedir(cwd)
-import os
-from modismeta import parseMeta
-from orient import orient
 
 
 from binit import binit
@@ -41,27 +41,28 @@ def make_dir(dirname='plots'):
 if __name__=="__main__":
 
     make_dir()
-    max_rows=300
-    max_cols=200
+    max_rows=1000
+    max_cols=1000
     #get the name of files ending in hdf
-    the_files=glob.glob('MOD03*275*hdf')
+    granule_info='A2010215.2145.005'
+    model3_file='*D03*{0:s}*hdf'.format(granule_info)
+    model3_file=glob.glob(model3_file)[0]
+    model2_file='*D021KM*{0:s}*hdf'.format(granule_info)
+    model2_file=glob.glob(model2_file)[0]
     #take the first one (only one file fits this description)
-    the_file=the_files[0]
-
-    # here's the header information
-    print parseMeta(the_file)
-
+    
+    my_parser=metaParse(filename=model3_file)
+    meta_data=my_parser.get_info()
+    
     #get the full latitude and longitude arrays
-    sdgeom=pyhdf.SD.SD(the_file)
+    sdgeom=pyhdf.SD.SD(model3_file)
     fullLats=sdgeom.select('Latitude')
     fullLats=fullLats.get()
     fullLons=sdgeom.select('Longitude')
     fullLons=fullLons.get()
     sdgeom.end()
 
-    the_files=glob.glob('MOD*21KM*275*hdf')
-    the_file=the_files[0]
-    sdrad=pyhdf.SD.SD(the_file)
+    sdrad=pyhdf.SD.SD(model2_file)
     longWave=sdrad.select('EV_1KM_Emissive')
     #
     # this array will be 16 x 2040 x 1354
@@ -122,15 +123,16 @@ if __name__=="__main__":
     the_label=cb.ax.set_ylabel('longitude (deg)',rotation=270)
     axis0b.set_title('partial scene longitude')
     fig0b.savefig('plots/partial_lon.png')
-    
-    numlatbins=60
-    numlonbins=120
-    bin_lats=binit(-30.5,-27,numlatbins,-999,-888)
-    bin_lons=binit(-101,-94,numlonbins,-999,-888)
 
-    #
-    # use ravel() to turn 2-d arrays into 1-d arrays
-    #
+    north,south,east,west=meta_data['nsew']
+    numlatbins=200
+    numlonbins=200
+    bin_lats=binit(south,north,numlatbins,-999,-888)
+    bin_lons=binit(west,east,numlonbins,-999,-888)
+
+    ## #
+    ## # use ravel() to turn 2-d arrays into 1-d arrays
+    ## #
     lat_count,lat_index,lowlats,highlats=bin_lats.do_bins(partLats.ravel())    
     lon_count,lon_index,lowlons,highlons=bin_lons.do_bins(partLons.ravel())    
     #
