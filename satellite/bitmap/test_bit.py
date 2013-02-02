@@ -11,15 +11,10 @@ import dateutil.tz as tz
 import re
 import bitmap
 
-plot_dir='plots'
-make_dir(plot_dir)
 mask_file=glob.glob('MYD35*2010215*.hdf')[0]
 my_parser=metaParse(filename=mask_file)
 meta_data=my_parser.get_info()
 mask=pyhdf.SD.SD(mask_file)
-
-theDate=parse(meta_data['startdate'][:-3] + meta_data['starttime'])
-theDate=theDate.replace(tzinfo=tz.tzutc())
 
 maskVals=mask.select('Cloud_Mask')
 maskVals=maskVals.get()
