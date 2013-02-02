@@ -81,8 +81,7 @@ byte 3
 */
 
 
-extern "C" {
-  void readcloud_cpp(char* byteone,char* maskout,int nvals){
+  void readcloud_cpp(signed char* byteone,signed char* maskout,int nvals){
     //byte 0, bits 1-2
     std::cout << "bitmask pixel dump:" << "-- number of bytes: " << nvals 
 	      << "-- first byte: " <<  std::bitset<8>(byteone[0]) 
@@ -93,28 +92,27 @@ extern "C" {
       maskout[i] = myseq[1] +(myseq[2]*2);
     }
   }
-  void readland_cpp(char* byteone,char* landout,int nvals){
+  void readland_cpp(signed char* byteone,signed char* landout,int nvals){
     //byte 0, bit 6-7
     for(int i=0; i < nvals; ++i){
       std::bitset<8> myseq(byteone[i]);
       landout[i] = myseq[6]+(myseq[7]*2);
     }
   }
-  void readthin_cirrus_cpp(char* byteone,char* cirrusout,int nvals){
+  void readthin_cirrus_cpp(signed char* byteone,signed char* cirrusout,int nvals){
     //byte 1, bit 3
     for(int i=0; i < nvals; ++i){
       std::bitset<8> myseq(byteone[i]);
       cirrusout[i] = myseq[3];
     }
   }
-  void readhigh_cloud_cpp(char* byteone,char* highout,int nvals){
+  void readhigh_cloud_cpp(signed char* byteone,signed char* highout,int nvals){
     //byte 1, bit 6
     for(int i=0; i < nvals; ++i){
       std::bitset<8> myseq(byteone[i]);
       highout[i] = myseq[6];
     }
   }
-}
 
 
 

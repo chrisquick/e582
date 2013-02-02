@@ -5,13 +5,12 @@ from libc.stdint cimport int8_t
 
 #try from libc.stdint cimport int64_t 
 
-cdef extern  void readcloud_cpp(int8_t* byteone,int8_t* maskout,int nvals)
+cdef extern from "bitmask.h":
+   void readcloud_cpp(signed char* byteone,signed char* maskout,int nvals)
+   void readland_cpp(signed char* byteone,signed char* landout,int nvals)
+   void readthin_cirrus_cpp(signed char* byteone,signed char* cirrusout,int nvals)
+   void readhigh_cloud_cpp(signed char* byteone,signed char* highout,int nvals)
 
-cdef extern  void readland_cpp(int8_t* byteone,int8_t* landout,int nvals)
-
-cdef extern  void readthin_cirrus_cpp(int8_t* byteone,int8_t* highout,int nvals)
-
-cdef extern  void readhigh_cloud_cpp(int8_t* byteone,int8_t* thinout,int nvals)
 
 def getmask_zero(object bytezero):
     """
