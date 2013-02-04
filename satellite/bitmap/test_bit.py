@@ -1,7 +1,10 @@
 from __future__ import division
 import site, glob
-site.addsitedir('/Users/phil/Library/Python/2.7/lib/python/site-packages')
-site.addsitedir('/Users/phil/repos/e582_code/satellite')
+#site.addsitedir('/Users/phil/Library/Python/2.7/lib/python/site-packages')
+#site.addsitedir('/Users/phil/repos/e582_code/satellite')
+#site.addsitedir('Z:\\repos\\e582_code\\satellite\\bitmap')
+import sys
+print sys.path
 from modismeta import metaParse
 import numpy as np
 import pyhdf.SD
