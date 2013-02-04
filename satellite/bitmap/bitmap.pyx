@@ -37,18 +37,18 @@ def getmask_zero(object bytezero):
        3=Land    
 
     """
-    byezero=np.ascontiguousarray(bytezero)
-    cdef int nvals= byezero.size
+    bytezero=np.ascontiguousarray(bytezero)
+    cdef int nvals= bytezero.size
     #
     # create memoryview wrappers arround the input and output
     # numpy arrays and get c pointers to the start of the data
     # to pass to the c++ functions
     #
-    cdef np.int8_t[:,::1] c_byte=byezero
+    cdef np.int8_t[:,::1] c_byte=bytezero
     cdef int8_t* dataPtr=<int8_t*> &c_byte[0,0]
-    cdef np.int8_t[:,::1] maskout=np.empty_like(byezero)
+    cdef np.int8_t[:,::1] maskout=np.empty_like(bytezero)
     cdef int8_t* maskPtr=<int8_t*> &maskout[0,0]
-    cdef np.int8_t[:,::1] landout=np.empty_like(byezero)
+    cdef np.int8_t[:,::1] landout=np.empty_like(bytezero)
     cdef int8_t* landPtr=<int8_t*> &landout[0,0]
     #
     # call the c++ functions to read the cloud and 
@@ -81,7 +81,7 @@ def getmask_one(object byteone):
     cdef int nvals= byteone.size
     saveShape=byteone.shape
     cdef np.int8_t[:,::1] c_byte=byteone
-    cdef int8_t* dataPtr=<int8_t*> &c_byte[0,0]
+    cdef np.int8_t* dataPtr=<int8_t*> &c_byte[0,0]
     cdef np.int8_t[:,::1] thinout=np.empty_like(byteone)
     cdef np.int8_t* thinPtr= &thinout[0,0]
     cdef np.int8_t[:,::1] highout=np.empty_like(byteone)

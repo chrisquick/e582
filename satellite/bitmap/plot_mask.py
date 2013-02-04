@@ -29,12 +29,12 @@ theDate=theDate.replace(tzinfo=tz.tzutc())
 
 maskVals=mask.select('Cloud_Mask')
 maskVals=maskVals.get()
-maskVals=maskVals[0,...] #get the first byte
+byte0=maskVals[0,...] #get the first byte
 #
 # pass the byte to bitmap and get back the cloudmask
 # and the landmask
 #
-maskout,landout=bitmap.getmask_zero(maskVals)
+maskout,landout=bitmap.getmask_zero(byte0)
 oceanvals=(landout==0)
 cloudvals=np.logical_and(maskout==0,oceanvals)
 cloudfrac=np.sum(cloudvals)/oceanvals.size
@@ -42,12 +42,13 @@ oceanfrac=np.sum(oceanvals)/landout.size
 print "Cloud fraction is {0:8.4f}".format(cloudfrac)
 print "fraction of scene surface that is ocean is {0:8.4f}".format(oceanfrac)
 
-thinout,highout=bitmap.getmask_zero(maskVals)
-clear_thin_frac=np.sum(thinout.flat)/thinout.size
-clear_high_frac=np.sum(highout.flat)/highout.size
+byte1=maskVals[1,...] #get the next byte
+thinout,highout=bitmap.getmask_one(byte1)
+no_thin_frac=np.sum(thinout.flat)/thinout.size
+no_high_frac=np.sum(highout.flat)/highout.size
 
-print "fraction of scene that is covered by thin clouds is {0:8.4f}".format(1. - clear_thin_frac)
-print "fraction of scene that is covered by high clouds is {0:8.4f}".format(1. - clear_high_frac)
+print "fraction of scene that is covered by thin clouds is {0:8.4f}".format((1. - no_thin_frac))
+print "fraction of scene that is covered by high clouds is {0:8.4f}".format((1. - no_high_frac))
 
 ## fig=plt.figure(1)
 ## fig.clf()
