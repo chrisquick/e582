@@ -57,13 +57,13 @@ def orient(lat,lon,values):
         raise ValueError("more than one pixel has maximum longitude? %s" % maxlon)
     if minlat[0] > maxlat[0]:
         #put smallest latitude in smallest row
-        print "preparing to flip up/down for %d fields" % (len(values)+2)
+        print "preparing to flip up/down"
         lat=flipud(lat)
         lon=flipud(lon)
         flippedFields=flipud(flippedFields)
     if minlon[1] > maxlon[1]:
         #put smallest (most negative) longitude  in smallest column
-        print "preparing to flip left/right for %d fields" % (len(values)+2)
+        print "preparing to flip left/right"
         lat=fliplr(lat)
         lon=fliplr(lon)
         flippedFields=fliplr(flippedFields)
