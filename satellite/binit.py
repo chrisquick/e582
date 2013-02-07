@@ -5,6 +5,7 @@ import pyhdf.SD
 import numpy as np
 import matplotlib.pyplot as plt
 import glob, sys
+from types import MethodType
 
 def progress(datanum,tot_loops):
     """
@@ -117,6 +118,17 @@ class binit(object):
           Get the bin edges for the historgram
         """
         return self.bin_edges
+
+class fastbin(binit):
+    def __init__(self,minval,maxval,numbins,missingLowValue,missingHighValue):
+        binit.__init__(self,minval,maxval,numbins,missingLowValue,missingHighValue)
+
+#
+# replace do_bins with the cython version from fastbinit.pyx
+#
+from fastbinit import do_bins
+fastbin.do_bins=MethodType(do_bins, None, fastbin)
+
     
 if __name__=="__main__":
     #
@@ -190,3 +202,4 @@ if __name__=="__main__":
     plt.show()
 
 
+        

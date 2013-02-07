@@ -51,6 +51,7 @@ numlonbins=200
 tic=time.clock()
 bin_lats=fastbin(south,north,numlatbins,-999,-888)
 bin_lons=fastbin(west,east,numlonbins,-999,-888)
+print "sending in: ",partLats.dtype,partLons.dtype
 lat_count,lat_index,lowlats,highlats=bin_lats.do_bins(partLats.ravel())    
 lon_count,lon_index,lowlons,highlons=bin_lons.do_bins(partLons.ravel())    
 fasttime=time.clock() - tic
@@ -65,8 +66,8 @@ np_loncount,np_lonbins=np.histogram(partLons.ravel(),bin_lons.bin_edges)
 #
 #  uncomment this line to trigger an error
 #np_latcount=np_latcount*1.5
-## np.testing.assert_almost_equal(np_latcount,lat_count )
-## np.testing.assert_almost_equal(np_loncount,lon_count )
+np.testing.assert_almost_equal(np_latcount,lat_count )
+np.testing.assert_almost_equal(np_loncount,lon_count )
 
 tic=time.clock()
 bin_lats=binit(south,north,numlatbins,-999,-888)
