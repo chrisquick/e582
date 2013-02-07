@@ -43,6 +43,9 @@ def do_bins(object self, object data_vec):
         bin_index[i]=ibin
     return (np.asarray(bin_count),np.asarray(bin_index),lowcount,highcount)
 
+#
+# cythonized version of hist_latlon function from coakley.py
+#
 def hist_latlon(object lats,object lons,object rads,object bin_lats,object bin_lons):
 
     lats=lats.ravel()
@@ -94,4 +97,3 @@ def hist_latlon(object lats,object lons,object rads,object bin_lats,object bin_l
                 lon_grid[row,col]=np.mean(lon_vals)                    
 
     return np.asarray(lat_grid),np.asarray(lon_grid),np.asarray(rad_grid)
-
