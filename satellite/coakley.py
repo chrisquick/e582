@@ -63,7 +63,61 @@ def hist_latlon(lats,lons,rads,bin_lats,bin_lons):
     return lat_grid,lon_grid,rad_grid
 
 
-## def calc_coakley(rad_array):
+class hist_class(object):
+
+    def __init__(self,lats,lons,rads,bin_lats,bin_lons):
+        self.lats=lats.ravel()
+        self.lons=lons.ravel()
+        self.rads=rads.ravel()
+        self.bin_lats=bin_lats
+        self.bin_lons=bin_lons
+        self.lat_count,self.lat_index,self.lowlats,self.highlats=bin_lats.do_bins(lats)    
+        self.lon_count,self.lon_index,self.lowlons,self.highlons=bin_lons.do_bins(lons)    
+        self.out_vals=np.empty([bin_lats.numbins,bin_lons.numbins],dtype=np.object)
+
+    def calc_vals(self):
+
+        numlatbins=self.bin_lats.numbins
+        numlonbins=self.bin_lons.numbins
+
+        for row in range(numlatbins):
+            for col in range(numlonbins):
+                self.out_vals[row,col]=list()
+        num_datapts=self.lats.size
+        for data_index in range(num_datapts):
+            grid_row=self.lat_index[data_index]
+            grid_col=self.lon_index[data_index]
+            if grid_row < 0 or grid_col < 0:
+                continue
+            else:
+                self.out_vals[grid_row,grid_col].append(data_index)
+
+    def calc_mean(self):
+        
+        self.calc_vals()
+        rad_grid=np.empty_like(self.out_vals,dtype=np.float32)
+        lat_grid=np.empty_like(self.out_vals,dtype=np.float32)
+        lon_grid=np.empty_like(self.out_vals,dtype=np.float32)
+        rows,cols=self.out_vals.shape
+        
+        for row in range(rows):
+            for col in range(cols):
+                rad_list=self.out_vals[row,col]
+                if len(rad_list)==0:
+                    rad_grid[row,col]=np.nan
+                    lat_grid[row,col]=np.nan
+                    lon_grid[row,col]=np.nan
+                else:
+                    rad_vals=np.take(self.rads,rad_list)
+                    lat_vals=np.take(self.lats,rad_list)
+                    lon_vals=np.take(self.lons,rad_list)
+                    rad_grid[row,col]=np.mean(rad_vals)
+                    lat_grid[row,col]=np.mean(lat_vals)                    
+                    lon_grid[row,col]=np.mean(lon_vals)                    
+
+        return np.asarray(lat_grid),np.asarray(lon_grid),np.asarray(rad_grid)
+
+
     
 
 if __name__=="__main__":
@@ -75,7 +129,7 @@ if __name__=="__main__":
     cmap.set_under('w')
     vmin= 7.5
     vmax= 8.5
-    the_norm=Normalize(vmin=vmin,vmax=vmax,clip=True)
+    the_norm=Normalize(vmin=vmin,vmax=vmax,clip=False)
     granule_info='A2010215.2145.005'
     model3_file='*D03*{0:s}*hdf'.format(granule_info)
     model3_file=glob.glob(model3_file)[0]
@@ -119,28 +173,31 @@ if __name__=="__main__":
     #
     # select none here to see the full image
     #
-    max_rows= None
-    max_cols= None
+    max_rows= 500
+    max_cols= 500
     partLats=fullLats[:max_rows,:max_cols]
     partLons=fullLons[:max_rows,:max_cols]
     partRads=chan31[:max_rows,:max_cols]
 
-    numlatbins=200
-    numlonbins=200
+    numlatbins=2
+    numlonbins=2
 
     bin_lats=binit_class(south,north,numlatbins,-999,-888)
     bin_lons=binit_class(west,east,numlonbins,-999,-888)
 
     #slow version
-    ## tic=time.clock()
-    ## lat_grid,lon_grid,rad_grid=hist_latlon(partLats,partLons,partRads,bin_lats,bin_lons)
-    ## slowtime=time.clock() - tic
+    tic=time.clock()
+    slowlat_grid,slowlon_grid,slowrad_grid=hist_latlon(partLats,partLons,partRads,bin_lats,bin_lons)
+    slowtime=time.clock() - tic
 
     #fast version
     tic=time.clock()
-    lat_grid,lon_grid,rad_grid=fasthist(partLats,partLons,partRads,bin_lats,bin_lons)
+    #lat_grid,lon_grid,rad_grid=fasthist(partLats,partLons,partRads,bin_lats,bin_lons)
+    the_hist=hist_class(partLats,partLons,partRads,bin_lats,bin_lons)
+    lat_grid,lon_grid,rad_grid=the_hist.calc_mean()
     fasttime=time.clock() - tic
     ## print "slow and fast plus speedup: ",slowtime,fasttime,slowtime/fasttime
+    np.testing.assert_almost_equal(slowrad_grid,rad_grid)
     lon_centers=bin_lons.get_centers()
     lat_centers=bin_lats.get_centers()
 
