@@ -22,7 +22,14 @@ python coakley.py
 git tag is coakley1 on master branch
 
 
+2013/Feb/12
+___________
 
+added
+
+fast_coakley.py which uses a new cython class in
+fasthist.pyx and gets a speedup of about 350
+over the histogram in plot_rads.py
 
 
 
