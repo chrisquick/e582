@@ -37,7 +37,7 @@ cdef class pyhist:
 
     def get_vec(self,int row, int col):
         out=self.thisptr.get_vec(row,col)
-        return out
+        return np.asarray(out)
 
     def get_hist2d(self):
         hist2d=np.zeros([self.numlatbins,self.numlonbins],dtype=np.int32)
