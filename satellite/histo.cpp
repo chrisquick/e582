@@ -42,7 +42,7 @@ void Histo::get_hist2d(int *hist2dout){
   int oned_index,cell_size;
   std::vector<int> latlon_cell;
   for(int grid_row =0; grid_row< numlats; grid_row++){
-    for(int grid_col=0; grid_row < numlons; grid_col++) {
+    for(int grid_col=0; grid_col < numlons; grid_col++) {
       oned_index=grid_row*numlons + grid_col;
       latlon_cell=outvec[oned_index];
       cell_size=latlon_cell.size();

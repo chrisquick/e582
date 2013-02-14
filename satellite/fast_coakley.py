@@ -1,4 +1,6 @@
 import pyhdf.SD
+import matplotlib
+matplotlib.use('osx')
 #
 # fastbin used fastbinit.pyx cython binning
 # compile with
@@ -28,9 +30,10 @@ import fasthist as fh
 
 if __name__=="__main__":
 
+    import copy
     from matplotlib.colors import Normalize
     from matplotlib import cm
-    cmap=cm.RdBu_r
+    cmap=copy.deepcopy(cm.RdBu_r)
     cmap.set_over('y')
     cmap.set_under('w')
     vmin= 7.5
@@ -110,18 +113,19 @@ if __name__=="__main__":
     the_label=cb.ax.set_ylabel('radiances ($W\,m^{-2}\,{\mu m}^{-1}\,sr^{-1}$)',rotation=270)
     axis1.set_title('MODIS channel 31 radiances (lat/lon binned)')
 
-    ## hist2d=new_hist.get_hist2d()
-    ## print "ready to do fig 2"
-    ## cmap=cm.RdBu_r
+    hist2d=new_hist.get_hist2d()
+    print np.sum(hist2d)
+    cmap=cm.RdBu
 
-    ## fig2=plt.figure(2)
-    ## fig2.clf()
-    ## axis2=fig2.add_subplot(111)
-    ## im=axis2.pcolor(lon_centers,lat_centers,rad_grid,cmap=cmap)
+    fig2=plt.figure(2)
+    fig2.clf()
+    axis2=fig2.add_subplot(111)
+    cmap=copy.deepcopy(cm.RdBu_r)
+    axis2.hist(rad_grid.ravel())
+    ## im=axis2.pcolor(lon_centers,lat_centers,rad_grid)
     ## cb=plt.colorbar(im)
     ## the_label=cb.ax.set_ylabel('counts',rotation=270)
-    ## axis2.set_title('2-d histogram (pixel count in each lat/lon bin')
-    ## fig2.canvas.draw()
-    
+    ## axis2.set_title('test 2-d histogram (pixel count in each lat/lon bin')
+    fig2.canvas.draw()
     plt.show()
 
