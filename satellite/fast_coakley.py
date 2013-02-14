@@ -88,8 +88,8 @@ if __name__=="__main__":
     partLons=fullLons[:max_rows,:max_cols]
     partRads=chan31[:max_rows,:max_cols]
 
-    numlatbins=350
-    numlonbins=350
+    numlatbins=550
+    numlonbins=550
 
     bin_lats=fastbin(south,north,numlatbins,-999,-888)
     bin_lons=fastbin(west,east,numlonbins,-999,-888)
@@ -112,20 +112,23 @@ if __name__=="__main__":
     cb=plt.colorbar(im,extend='both')
     the_label=cb.ax.set_ylabel('radiances ($W\,m^{-2}\,{\mu m}^{-1}\,sr^{-1}$)',rotation=270)
     axis1.set_title('MODIS channel 31 radiances (lat/lon binned)')
+    fig1.canvas.draw()
 
     hist2d=new_hist.get_hist2d()
-    print np.sum(hist2d)
-    cmap=cm.RdBu
-
+    print "ready to do fig 2"
     fig2=plt.figure(2)
     fig2.clf()
+    #
+    # new color map without limits
+    #
+    del cmap
+    cmap=cm.RdBu_r
     axis2=fig2.add_subplot(111)
-    cmap=copy.deepcopy(cm.RdBu_r)
-    axis2.hist(rad_grid.ravel())
-    ## im=axis2.pcolor(lon_centers,lat_centers,rad_grid)
-    ## cb=plt.colorbar(im)
-    ## the_label=cb.ax.set_ylabel('counts',rotation=270)
-    ## axis2.set_title('test 2-d histogram (pixel count in each lat/lon bin')
+    im=axis2.pcolor(lon_centers,lat_centers,hist2d,cmap=cmap)
+    cb=plt.colorbar(im)
+    the_label=cb.ax.set_ylabel('counts',rotation=270)
+    axis2.set_title('2-d histogram (pixel count in each lat/lon bin')
     fig2.canvas.draw()
+    
     plt.show()
 
