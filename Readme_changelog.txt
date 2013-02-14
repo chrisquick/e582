@@ -31,6 +31,17 @@ fast_coakley.py which uses a new cython class in
 fasthist.pyx and gets a speedup of about 350
 over the histogram in plot_rads.py
 
+* thursday feb 14
+-----------------
+
+add scatter/angles.py working with the scattering angle
+and Stevens equation A1.3
+
+added new method to fast_coakley.py to sum counts
+in each bin and return the 2-d histogram:
+
+    new_hist=fh.pyhist(partLats,partLons,bin_lats,bin_lons)
+    hist2d=new_hist.get_hist2d()
 
 
 
