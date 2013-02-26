@@ -55,19 +55,24 @@ void Histo::get_hist2d(int *hist2dout){
 }
 
 void Histo::get_mean(float *datain,float *meanout){
+  int oned_index,cell_size;
   std::vector<int> latlon_cell;
   std::vector<int>::iterator itr;
-  for(int i=0;i < grid_length;i++){
-    latlon_cell=outvec[i];
-    int cell_size=latlon_cell.size();
-    if(cell_size == 0){
-      continue;
+  for(int grid_row =0; grid_row< numlats; grid_row++){
+    for(int grid_col=0; grid_col < numlons; grid_col++) {
+      oned_index=grid_row*numlons + grid_col;
+      latlon_cell=outvec[oned_index];
+      cell_size=latlon_cell.size();
+      if(cell_size == 0){
+	meanout[oned_index]= -999.;
+        continue;
+      }
+      meanout[oned_index]=0.;
+      for (itr = latlon_cell.begin(); itr != latlon_cell.end(); ++itr ){
+        meanout[oned_index]=meanout[oned_index] + datain[*itr];
+      }
+      meanout[oned_index]=meanout[oned_index]/cell_size;
     }
-    meanout[i]=0.;
-    for (itr = latlon_cell.begin(); itr != latlon_cell.end(); ++itr ){
-      meanout[i]=meanout[i] + datain[*itr];
-    }
-    meanout[i]=meanout[i]/cell_size;
   }
 }
 

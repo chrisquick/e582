@@ -6,8 +6,8 @@ from libc.stdint cimport int8_t
 #try from libc.stdint cimport int64_t 
 
 cdef extern from "bitmask.h":
-   void readcloud_cpp(signed char* byteone,signed char* maskout,int nvals)
-   void readland_cpp(signed char* byteone,signed char* landout,int nvals)
+   void readcloud_cpp(signed char* byteone,np.float32_t* maskout,int nvals)
+   void readland_cpp(signed char* byteone,np.float32_t* landout,int nvals)
    void readthin_cirrus_cpp(signed char* byteone,signed char* cirrusout,int nvals)
    void readhigh_cloud_cpp(signed char* byteone,signed char* highout,int nvals)
 
@@ -44,12 +44,11 @@ def getmask_zero(object bytezero):
     # numpy arrays and get c pointers to the start of the data
     # to pass to the c++ functions
     #
-    cdef np.int8_t[:,::1] c_byte=bytezero
-    cdef int8_t* dataPtr=<int8_t*> &c_byte[0,0]
-    cdef np.int8_t[:,::1] maskout=np.empty_like(bytezero)
-    cdef int8_t* maskPtr=<int8_t*> &maskout[0,0]
-    cdef np.int8_t[:,::1] landout=np.empty_like(bytezero)
-    cdef int8_t* landPtr=<int8_t*> &landout[0,0]
+    cdef np.int8_t* dataPtr= <np.int8_t*> np.PyArray_DATA(bytezero)
+    maskout=np.empty(bytezero.shape,dtype=np.float32)
+    landout=np.empty(bytezero.shape,dtype=np.float32)
+    cdef np.float32_t* maskPtr = <np.float32_t*> np.PyArray_DATA(maskout)
+    cdef np.float32_t* landPtr = <np.float32_t*> np.PyArray_DATA(landout)
     #
     # call the c++ functions to read the cloud and 
     # land masks
@@ -60,7 +59,7 @@ def getmask_zero(object bytezero):
     # cast the memoryview objects back to numpy arrays
     # to return to python
     #
-    out=(np.asarray(maskout),np.asarray(landout))
+    out=(maskout,landout)
     return out
 
 

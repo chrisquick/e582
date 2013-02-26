@@ -43,8 +43,10 @@ if __name__=="__main__":
     axis1=fig1.add_subplot(111)
     lowlimit=0.
     uplimit=None
-    im=axis1.pcolormesh(lon_centers[lowlimit:uplimit],lat_centers[lowlimit:uplimit],rad_grid[lowlimit:uplimit,lowlimit:uplimit],
-                    cmap=cmap,norm=the_norm)
+    a=np.ascontiguousarray(lon_centers[lowlimit:uplimit])
+    b=np.ascontiguousarray(lat_centers[lowlimit:uplimit])
+    c=np.ascontiguousarray(rad_grid[lowlimit:uplimit])
+    im=axis1.pcolormesh(a,b,c,cmap=cmap,norm=the_norm)
     cb=fig1.colorbar(im,extend='both')
     the_label=cb.ax.set_ylabel('radiances ($W\,m^{-2}\,{\mu m}^{-1}\,sr^{-1}$)',rotation=270)
     axis1.set_title('MODIS channel 31 radiances (lat/lon binned)')
@@ -65,8 +67,7 @@ if __name__=="__main__":
     the_norm=Normalize(vmin=vmin,vmax=vmax,clip=False)
 
     axis2=fig2.add_subplot(111)
-    im=axis2.pcolormesh(lon_centers[lowlimit:uplimit],lat_centers[lowlimit:uplimit],
-                    hist2d[lowlimit:uplimit],cmap=cmap,norm=the_norm)
+    im=axis2.pcolormesh(a,b,hist2d[lowlimit:uplimit],cmap=cmap,norm=the_norm)
     cb=fig2.colorbar(im,extend='both')
     the_label=cb.ax.set_ylabel('counts',rotation=270)
     axis2.set_title('2-d histogram (pixel count in each lat/lon bin')
@@ -80,13 +81,13 @@ if __name__=="__main__":
     vmax= 8.5
     the_norm=Normalize(vmin=vmin,vmax=vmax,clip=False)
 
-    lowlimit=0
-    uplimit=150
+    lowlimit=200
+    uplimit=350
+    a=np.ascontiguousarray(lon_centers[lowlimit:uplimit])
+    b=np.ascontiguousarray(lat_centers[lowlimit:uplimit])
     fig3=plt.figure(3)
     fig3.clf()
     axis3=fig3.add_subplot(111)
-    a=np.ascontiguousarray(lon_centers[lowlimit:uplimit])
-    b=np.ascontiguousarray(lat_centers[lowlimit:uplimit])
     c=np.ascontiguousarray(rad_grid[lowlimit:uplimit,lowlimit:uplimit])
     im=axis3.pcolormesh(a,b,c,cmap=cmap,norm=the_norm)
     cb=fig3.colorbar(im,extend='both')
@@ -109,7 +110,7 @@ if __name__=="__main__":
     im=axis4.pcolormesh(a,b,c,cmap=cmap,norm=the_norm)
     cb=fig4.colorbar(im,extend='both')
     the_label=cb.ax.set_ylabel('cloud mask',rotation=270)
-    axis4.set_title('cloud mask')
+    axis4.set_title('cloud mask: 0=cloud, 3=clear (99% prob)')
     fig4.canvas.draw()
 
     

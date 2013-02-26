@@ -1,3 +1,4 @@
+#cython: embedsignature=True
 import numpy as np
 cimport numpy as np
 from libcpp.vector cimport vector
@@ -11,6 +12,9 @@ cdef extern from "histo.hpp" namespace "hist":
         void get_hist2d(int *histout)
 
 cdef class pyhist:
+    """
+      cython wrapper around Histo.cpp
+    """
     cdef Histo *thisptr      # hold a C++ instance which we're wrapping
     cdef float[:] lat_view
     cdef float[:] lon_view
@@ -36,6 +40,9 @@ cdef class pyhist:
                                  <int*> np.PyArray_DATA(lat_index), <int*> np.PyArray_DATA(lon_index))
 
     def get_vec(self,int row, int col):
+        """
+          return a latitude row of data
+        """  
         out=self.thisptr.get_vec(row,col)
         return np.asarray(out)
 

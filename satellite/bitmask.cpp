@@ -81,7 +81,7 @@ byte 3
 */
 
 
-  void readcloud_cpp(signed char* byteone,signed char* maskout,int nvals){
+  void readcloud_cpp(signed char* byteone,float* maskout,int nvals){
     //byte 0, bits 1-2
     std::cout << "bitmask pixel dump:" << "-- number of bytes: " << nvals 
 	      << "-- first byte: " <<  std::bitset<8>(byteone[0]) 
@@ -92,7 +92,7 @@ byte 3
       maskout[i] = myseq[1] +(myseq[2]*2);
     }
   }
-  void readland_cpp(signed char* byteone,signed char* landout,int nvals){
+  void readland_cpp(signed char* byteone,float* landout,int nvals){
     //byte 0, bit 6-7
     for(int i=0; i < nvals; ++i){
       std::bitset<8> myseq(byteone[i]);

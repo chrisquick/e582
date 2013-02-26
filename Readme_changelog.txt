@@ -44,4 +44,29 @@ in each bin and return the 2-d histogram:
     hist2d=new_hist.get_hist2d()
 
 
+* tuesday feb 26
+-----------------
+
+New routines:
+
+plot_fields.py -- plot a subsection of gridded fields
+
+plot_vis.py  -- plot channel 1 radiance and reflectance  --
+  see
+  http://ccplot.org/pub/resources/Aqua/MODIS%20Level%201B%20Product%20User%20Guide.pdf
+  p.33
+
+Modified routines:
+
+setup.py now builds all modules
+bitmask.pyx moved up to satellite directory
+fast_coakly.py now plots gridded cloudmask
+
+To build fasthist.pyx fastbinit.pyx and bitmap.pyx:
+
+python setup.py build_ext
+
+To remove temporary files:
+
+python setup.py cleanall
 
