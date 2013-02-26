@@ -47,8 +47,8 @@ if args.count("build_ext") > 0 and args.count("--inplace") == 0:
 
 # Only build for 64-bit target
 #os.environ['ARCHFLAGS'] = "-arch x86_64"
-os.environ['CXX'] = "g++"
-os.environ['CC'] = "g++"
+#os.environ['CXX'] = "g++"
+#os.environ['CC'] = "g++"
 #----
 
 fastbin=Extension('fastbinit', ['fastbinit.pyx'],
