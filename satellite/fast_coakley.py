@@ -86,6 +86,30 @@ if __name__=="__main__":
     scale31=longWave.attributes()['radiance_scales'][index31]
     offset31=longWave.attributes()['radiance_offsets'][index31]
     chan31 = scale31 * (chan31 - offset31)
+
+
+    shortWave=sdrad.select('EV_250_Aggr1km_RefSB')
+    allRadiances=shortWave.get()
+
+    theChans=shortWave.attributes()['band_names']
+    band_names=theChans.split(',')
+    index1=band_names.index('1')
+    #
+    #  get the radiances as 16 bit integers
+    #
+    chan1raw=allRadiances[index1,:,:]
+    #
+    # apply scale and offset to convert to 64 bit floats
+    #
+    scale1=shortWave.attributes()['radiance_scales'][index1]
+    offset1=shortWave.attributes()['radiance_offsets'][index1]
+    chan1 = scale1 * (chan1raw - offset1)
+
+    scale1ref=shortWave.attributes()['reflectance_scales'][index1]
+    offset1ref=shortWave.attributes()['reflectance_offsets'][index1]
+    chan1ref = scale1ref * (chan1raw - offset1ref)
+
+    
     sdrad.end()
     fullLats,fullLons,chan31=orient(fullLats_raw,fullLons_raw,chan31)
     #
@@ -102,9 +126,11 @@ if __name__=="__main__":
     partRads=chan31[:max_rows,:max_cols]
     partMask=maskout[:max_rows,:max_cols]
     partLand=landout[:max_rows,:max_cols]
+    partChan1rad=chan1[:max_rows,:max_cols]
+    partChan1ref=chan1ref[:max_rows,:max_cols]
     
-    numlatbins=550
-    numlonbins=550
+    numlatbins=800
+    numlonbins=600
 
     bin_lats=fastbin(south,north,numlatbins,-999,-888)
     bin_lons=fastbin(west,east,numlonbins,-999,-888)
@@ -112,19 +138,18 @@ if __name__=="__main__":
     lon_centers=bin_lons.get_centers()
     lat_centers=bin_lats.get_centers()
 
-    tic=time.clock()
     new_hist=fh.pyhist(partLats,partLons,bin_lats,bin_lons)
-    rad_grid=new_hist.get_mean(partRads)
+    chan31_grid=new_hist.get_mean(partRads)
     mask_grid=new_hist.get_mean(partMask)
     land_grid=new_hist.get_mean(partLand)
-    toc=time.clock() - tic
-    ## print "slow and fast plus speedup: ",fasttime,toc,fasttime/toc
+    chan1rad_grid=new_hist.get_mean(partChan1rad)
+    chan1ref_grid=new_hist.get_mean(partChan1ref)
 
     
     fig1=plt.figure(1)
     fig1.clf()
     axis1=fig1.add_subplot(111)
-    im=axis1.pcolormesh(lon_centers,lat_centers,rad_grid,cmap=cmap,\
+    im=axis1.pcolormesh(lon_centers,lat_centers,chan31_grid,cmap=cmap,\
                       norm=the_norm)
     cb=plt.colorbar(im,extend='both')
     the_label=cb.ax.set_ylabel('radiances ($W\,m^{-2}\,{\mu m}^{-1}\,sr^{-1}$)',rotation=270)
@@ -132,7 +157,7 @@ if __name__=="__main__":
     fig1.canvas.draw()
 
     
-    hist2d=new_hist.get_hist2d()
+    lat_lon_counts=new_hist.get_hist2d()
     print "ready to do fig 2"
     fig2=plt.figure(2)
     fig2.clf()
@@ -142,7 +167,7 @@ if __name__=="__main__":
     del cmap
     cmap=cm.RdBu_r
     axis2=fig2.add_subplot(111)
-    im=axis2.pcolormesh(lon_centers,lat_centers,hist2d,cmap=cmap)
+    im=axis2.pcolormesh(lon_centers,lat_centers,lat_lon_counts,cmap=cmap)
     cb=plt.colorbar(im)
     the_label=cb.ax.set_ylabel('counts',rotation=270)
     axis2.set_title('2-d histogram (pixel count in each lat/lon bin')
@@ -159,19 +184,19 @@ if __name__=="__main__":
     fig3=plt.figure(3)
     fig3.clf()
     axis3=fig3.add_subplot(111)
-    mask_grid[mask_grid < 0] = 6
+    mask_grid[mask_grid < 0] = -1
     im=axis3.pcolormesh(lon_centers,lat_centers,mask_grid,cmap=cmap,\
                       norm=the_norm)
     cb=fig3.colorbar(im,extend='both')
     the_label=cb.ax.set_ylabel('cloud mask',rotation=270)
-    axis3.set_title('land mask (0=cloud, 3=clear)')
+    axis3.set_title('cloud mask (0=cloud, 3=clear)')
     fig3.canvas.draw()
 
 
     fig4=plt.figure(4)
     fig4.clf()
     axis4=fig4.add_subplot(111)
-    mask_grid[mask_grid < 0] = 6
+    mask_grid[mask_grid < 0] = -1
     im=axis4.pcolormesh(lon_centers,lat_centers,land_grid,cmap=cmap,\
                       norm=the_norm)
     cb=fig4.colorbar(im,extend='both')
@@ -180,8 +205,9 @@ if __name__=="__main__":
     fig4.canvas.draw()
 
     savefile='gridded_fields'
-    arrays={'rad_grid':rad_grid,'hist2d':hist2d,'lon_centers':lon_centers,
-            'lat_centers':lat_centers,'mask_grid':mask_grid,'land_grid':land_grid}
+    arrays={'chan31_grid':chan31_grid,'lat_lon_counts':lat_lon_counts,'lon_centers':lon_centers,
+            'lat_centers':lat_centers,'mask_grid':mask_grid,'land_grid':land_grid,
+            'chan1rad_grid':chan1rad_grid,'chan1ref_grid':chan1ref_grid}
     np.savez_compressed(savefile,**arrays)
     
     plt.show()

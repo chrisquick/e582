@@ -12,16 +12,13 @@ from orient import orient
 #
 # turn off plotting windows and make pngs instead
 #
-plt.switch_backend('Agg')
+#plt.switch_backend('Agg')
 import glob, sys, os
 import site
 #
 # add the current directory to the module
 # search path
 #
-cwd=os.getcwd()
-site.addsitedir(cwd)
-
 
 from binit import binit
 
